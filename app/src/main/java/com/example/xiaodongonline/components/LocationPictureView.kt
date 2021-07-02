@@ -11,10 +11,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.xiaodongonline.R
+import com.facebook.shimmer.ShimmerFrameLayout
 
 class LocationPictureView : ConstraintLayout {
+    private var shimmer: ShimmerFrameLayout? = null
     private lateinit var label: TextView
-    private lateinit var image: ImageView
+    lateinit var image: ImageView
     private lateinit var status: TextView
     var onClick: ((String) -> Unit)? = null
 
@@ -38,6 +40,7 @@ class LocationPictureView : ConstraintLayout {
 
     private fun initView() {
         LayoutInflater.from(context).inflate(R.layout.location_picture_view, this, true)
+        shimmer = findViewById(R.id.shimmer)
         label = findViewById(R.id.label)
         image = findViewById(R.id.image)
         status = findViewById(R.id.uploadStatus)
@@ -77,6 +80,15 @@ class LocationPictureView : ConstraintLayout {
         if (status.visibility == View.GONE) {
             status.visibility = View.VISIBLE
         }
+    }
+
+    fun startAnim() {
+        shimmer?.startShimmer()
+    }
+
+    fun stopAnim() {
+//        shimmer?.stopShimmer()
+        shimmer?.hideShimmer()
     }
 
     enum class UploadStatus(val label: String) {

@@ -6,13 +6,17 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.example.xiaodongonline.R
+import com.example.xiaodongonline.components.LoadingView
 import com.example.xiaodongonline.components.LocationPictureView
 import com.example.xiaodongonline.databinding.ReportFragmentBinding
 import com.example.xiaodongonline.model.Report
@@ -33,16 +37,20 @@ class ReportFragment : Fragment(R.layout.report_fragment) {
 
     private val viewModel: ReportViewModel by viewModels()
     private lateinit var binding: ReportFragmentBinding
-    private var loading: ProgressBar? = null
+    private lateinit var loadingView: LoadingView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = ReportFragmentBinding.bind(view)
         binding.report = viewModel.report
         binding.lifecycleOwner = this
-        loading = ProgressBar(requireContext())
-        loading?.visibility = View.VISIBLE
-        viewModel.showLoading.observe(viewLifecycleOwner) {
+        loadingView = LoadingView(requireContext())
+        viewModel.showLoading.observe(viewLifecycleOwner) { show ->
+            if (show) {
+                loadingView.show()
+            } else {
+                loadingView.hide()
+            }
         }
 
         val report = Report(reportNo = 1)
@@ -52,11 +60,16 @@ class ReportFragment : Fragment(R.layout.report_fragment) {
         // 查询
         viewModel.initQuery()
         binding.editTextSearch.textChanges()
+            .skip(1)
             .debounce(500, TimeUnit.MILLISECONDS)
             .observeOn(Schedulers.io())
             .subscribe {
-                viewModel.emitQueryWord(it.toString())
+                viewModel.emitReportNo(it.toString())
             }
+
+        // 测试按钮
+        binding.button.setOnClickListener {
+        }
     }
 
     private fun initPictures(report: Report) {
@@ -85,6 +98,31 @@ class ReportFragment : Fragment(R.layout.report_fragment) {
                 layoutParams =
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
+            locationPictureView.startAnim()
+            Glide.with(requireContext())
+                .load("https://cdn.pixabay.com/photo/2021/02/27/22/19/plant-6055943_1280.jpg")
+                .listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        return false
+                    }
+
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        locationPictureView.stopAnim()
+                        return false
+                    }
+                })
+                .into(locationPictureView.image)
 
             linearLayout?.addView(locationPictureView)
             if (account % 2 == 1) {
@@ -97,6 +135,7 @@ class ReportFragment : Fragment(R.layout.report_fragment) {
             binding.imageContainer.addView(linearLayout, rowLayoutParams)
         }
     }
+
 
     @SuppressLint("CheckResult")
     private fun takePhoto(locationPictureView: LocationPictureView, report: Report) {
@@ -134,6 +173,7 @@ class ReportFragment : Fragment(R.layout.report_fragment) {
             }
     }
 
+    // 上传图片命名
     fun formatPictureName(reportNo: Int, label: String): String {
         return "NO${reportNo}_${label}"
     }

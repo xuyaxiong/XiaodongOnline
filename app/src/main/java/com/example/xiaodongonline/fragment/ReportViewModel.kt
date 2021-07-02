@@ -8,12 +8,8 @@ import com.example.xiaodongonline.api.ReportApi
 import com.example.xiaodongonline.model.Report
 import com.orhanobut.logger.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 
 class ReportViewModel : ViewModel() {
@@ -22,46 +18,35 @@ class ReportViewModel : ViewModel() {
     private val queryObservable = PublishSubject.create<String>()
     private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-    private val _showLoading = MutableLiveData<Boolean>(false)
+    private val _showLoading = MutableLiveData(false)
     val showLoading: LiveData<Boolean> = _showLoading
 
-    fun emitQueryWord(keyword: String) {
-        queryObservable.onNext(keyword)
+    fun emitReportNo(reportNo: String) {
+        queryObservable.onNext(reportNo)
     }
 
     @SuppressLint("CheckResult")
     fun initQuery() {
         queryObservable.debounce(500, TimeUnit.MILLISECONDS)
-            .map { keyword -> queryReportFake(keyword) }
-            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { report ->
-                _report.value = report
+            .subscribe { reportNo ->
+                queryReport(reportNo.toInt())
             }
     }
 
-    private fun queryReportFake(keyword: String): Report {
-        val report = Report(
-            1, 1,
-            keyword,
-            "联通",
-            "电信",
-            1, "福建", "运营商",
-            30f, 30f,
-            "娱乐", 30f, 30f, 30f, 2f,
-            "2020年11月04日"
-        )
-        return report
-    }
-
-    private fun queryReport(keyword: String) {
+    private fun queryReport(reportNo: Int) {
+        _showLoading.value = true
         coroutineScope.launch {
-            val report = ReportApi.reportService.getReport()
+            val deferred = ReportApi.reportService.getReport()
             try {
-                val data = report.await().transform()
-                _report.value = data
+                val report = deferred.await().transform()
+                delay(2000)
+                val testReport = Report(reportNo = reportNo)
+                _report.value = testReport
             } catch (e: Exception) {
                 Logger.e(e, "获取报告失败")
+            } finally {
+                _showLoading.value = false
             }
         }
     }
