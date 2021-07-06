@@ -7,5 +7,5 @@ import retrofit2.http.GET
 
 interface ReportService {
     @GET("test")
-    fun getReport(): Deferred<ReportDTO>
+    fun getReportAsync(): Deferred<ReportDTO>
 }

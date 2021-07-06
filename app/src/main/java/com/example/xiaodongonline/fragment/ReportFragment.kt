@@ -28,6 +28,12 @@ import com.qingmei2.rximagepicker.core.RxImagePicker
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
+/**
+ *  author : 徐亚雄
+ *  date : 2021/7/5 10:35
+ *  description :
+ */
+
 
 class ReportFragment : Fragment(R.layout.report_fragment) {
 

@@ -2,6 +2,12 @@ package com.example.xiaodongonline.model
 
 import com.example.xiaodongonline.Config
 
+/**
+ *  author : 徐亚雄
+ *  date : 2021/7/5 10:35
+ *  description : 报告
+ */
+
 data class Report(
     val orderNo: Int? = null,
     val reportNo: Int? = null,

@@ -1,10 +1,10 @@
 package com.example.xiaodongonline.fragment
 
 import android.annotation.SuppressLint
+import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.xiaodongonline.api.ReportApi
 import com.example.xiaodongonline.model.Report
 import com.orhanobut.logger.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,6 +28,7 @@ class ReportViewModel : ViewModel() {
     @SuppressLint("CheckResult")
     fun initQuery() {
         queryObservable.debounce(500, TimeUnit.MILLISECONDS)
+            .filter { !TextUtils.isEmpty(it) }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { reportNo ->
                 queryReport(reportNo.toInt())
@@ -37,9 +38,9 @@ class ReportViewModel : ViewModel() {
     private fun queryReport(reportNo: Int) {
         _showLoading.value = true
         coroutineScope.launch {
-            val deferred = ReportApi.reportService.getReport()
+//            val deferred = ReportApi.reportService.getReportAsync()
             try {
-                val report = deferred.await().transform()
+//                val report = deferred.await().transform()
                 delay(2000)
                 val testReport = Report(reportNo = reportNo)
                 _report.value = testReport

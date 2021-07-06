@@ -7,7 +7,15 @@ import android.graphics.Paint
 import androidx.core.content.ContextCompat
 import com.example.xiaodongonline.R
 
+/**
+ *  author : 徐亚雄
+ *  date : 2021/7/5 10:32
+ *  description :
+ */
+
 object ImageUtil {
+
+    // 添加水印
     fun addWatermask(
         context: Context,
         bitmap: Bitmap,

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="NoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorPrimaryDark">@color/blue_primary</item>
+        <item name="colorAccent">@color/blue_primary</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+    </style>
+</resources>
